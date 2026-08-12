@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CreditCard, Check, User, ArrowLeft } from 'lucide-react';
+import { CreditCard, Check, User, ArrowLeft, Copy } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
-import { formatPrice, calculateShipping, calculateTax } from '../lib/utils';
-import { ordersApi } from '../lib/api';
+import { formatPrice, calculateShipping, calculateTax, copyToClipboard } from '../lib/utils';
+import { ordersApi, publicSettingsApi, type Order, type BankTransferDetails } from '../lib/api';
 import { useToast } from '../components/admin/Toast';
 import PaymentGatewaySelector from '../components/PaymentGatewaySelector';
+import PaymentProofUploader from '../components/PaymentProofUploader';
 import type { PaymentContext, PaymentInitResult, PaymentGateway } from '../payments/types';
 import type { CartItem } from '../types';
 
-type Step = 'shipping' | 'auth' | 'payment';
+type Step = 'shipping' | 'auth' | 'payment' | 'proof';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -33,6 +34,31 @@ export default function CheckoutPage() {
 
   const [authForm, setAuthForm] = useState({ email: '', password: '', name: '' });
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+
+  const [pendingOrder, setPendingOrder] = useState<Order | null>(null);
+  const [bankDetails, setBankDetails] = useState<BankTransferDetails | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Pagomóvil fields are numeric codes (bank code, phone, cédula) — only the
+  // digits should ever land in the clipboard, no labels, spaces or dashes.
+  const onlyDigits = (v: string) => v.replace(/\D/g, '');
+
+  const copyField = (field: string, value: string) => {
+    copyToClipboard(onlyDigits(value)).then(success => {
+      if (success) {
+        setCopiedField(field);
+        setTimeout(() => setCopiedField(null), 1500);
+      } else {
+        toast.error('No se pudo copiar. Mantén presionado el texto para copiarlo manualmente.');
+      }
+    });
+  };
+
+  useEffect(() => {
+    publicSettingsApi.get()
+      .then(res => setBankDetails(res.data.bankTransferDetails))
+      .catch(() => setBankDetails(null));
+  }, []);
 
   const sub = subtotal();
   const shipping = calculateShipping(sub);
@@ -144,7 +170,7 @@ export default function CheckoutPage() {
         productId: i.productId,
       }));
 
-      if (result.mode === 'demo') {
+      if (result.mode === 'demo' || result.mode === 'manual') {
         const createdOrder = await ordersApi.create({
           items: payloadItems,
           subtotal: sub,
@@ -155,8 +181,17 @@ export default function CheckoutPage() {
           paymentMethod: result.paymentMethodKey,
         });
 
-        sessionStorage.removeItem('lumen-checkout-pending');
-        localStorage.removeItem('lumen-checkout-data');
+        // Bank transfer needs one more step: the customer uploads their
+        // proof of payment before we clear the cart / navigate away.
+        if (result.paymentMethodKey === 'bank_transfer') {
+          setPendingOrder(createdOrder.data);
+          setStep('proof');
+          setLoading(false);
+          return;
+        }
+
+        sessionStorage.removeItem('raybert-checkout-pending');
+        localStorage.removeItem('raybert-checkout-data');
         clearCart();
 
         if (user) {
@@ -442,6 +477,85 @@ export default function CheckoutPage() {
               {error && <p className="text-sm text-red-600 px-1">{error}</p>}
             </div>
           )}
+
+          {step === 'proof' && pendingOrder && (
+            <div className="bg-white border border-ink-200 rounded-2xl p-6 space-y-5">
+              <div className="flex items-center gap-3 pb-4 border-b border-ink-200">
+                <div className="w-10 h-10 rounded-full bg-ink-100 grid place-items-center">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold">Pagomovil</h2>
+                  <p className="text-sm text-ink-500">
+                    Orden #{pendingOrder.id.slice(0, 8)} creada — {formatPrice(total)} a transferir
+                  </p>
+                </div>
+              </div>
+
+              {bankDetails ? (
+                <div className="bg-ink-100 rounded-xl p-4 space-y-2 text-sm">
+                  {bankDetails.bankName && bankDetails.accountNumber && bankDetails.documentId && (
+                    <CopyRow
+                      label="Todo"
+                      value={`${onlyDigits(bankDetails.bankName)} ${onlyDigits(bankDetails.accountNumber)} ${onlyDigits(bankDetails.documentId)}`}
+                      field="all"
+                      copiedField={copiedField}
+                      onCopy={(field, value) => {
+                        copyToClipboard(value).then(success => {
+                          if (success) {
+                            setCopiedField(field);
+                            setTimeout(() => setCopiedField(null), 1500);
+                          } else {
+                            toast.error('No se pudo copiar. Mantén presionado el texto para copiarlo manualmente.');
+                          }
+                        });
+                      }}
+                      bold
+                    />
+                  )}
+                  {bankDetails.bankName && (
+                    <CopyRow label="Banco" value={bankDetails.bankName} field="bankName" copiedField={copiedField} onCopy={copyField} />
+                  )}
+                  {bankDetails.accountHolder && (
+                    <CopyRow label="Titular" value={bankDetails.accountHolder} field="accountHolder" copiedField={copiedField} onCopy={copyField} />
+                  )}
+                  {bankDetails.accountNumber && (
+                    <CopyRow label="Teléfono" value={bankDetails.accountNumber} field="accountNumber" copiedField={copiedField} onCopy={copyField} />
+                  )}
+                  {bankDetails.documentId && (
+                    <CopyRow label="C.I." value={bankDetails.documentId} field="documentId" copiedField={copiedField} onCopy={copyField} />
+                  )}
+                  {bankDetails.instructions && (
+                    <p className="text-ink-500 pt-1">{bankDetails.instructions}</p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-ink-500">
+                  Contáctanos para obtener los datos de Pagomóvil.
+                </p>
+              )}
+
+              <p className="text-sm text-ink-500">
+                Una vez hecho el pago, sube una foto o PDF de tu comprobante abajo.
+                Tu orden queda <span className="font-medium">pendiente</span> hasta que verifiquemos el pago.
+              </p>
+
+              <PaymentProofUploader
+                orderId={pendingOrder.id}
+                onUploaded={() => {
+                  sessionStorage.removeItem('raybert-checkout-pending');
+                  localStorage.removeItem('raybert-checkout-data');
+                  clearCart();
+                  toast.success('Proof uploaded! We will verify your payment shortly.');
+                  if (user) {
+                    navigate('/orders', { state: { highlightOrderId: pendingOrder.id } });
+                  } else {
+                    navigate('/');
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <aside className="lg:sticky lg:top-24 self-start">
@@ -486,6 +600,44 @@ export default function CheckoutPage() {
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+function CopyRow({
+  label,
+  value,
+  field,
+  copiedField,
+  onCopy,
+  bold,
+}: {
+  label: string;
+  value: string;
+  field: string;
+  copiedField: string | null;
+  onCopy: (field: string, value: string) => void;
+  bold?: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center justify-between gap-3 ${
+        bold ? 'pb-2 mb-1 border-b border-ink-200' : ''
+      }`}
+    >
+      <div>
+        <span className="text-ink-500">{label}:</span>{' '}
+        <span className={bold ? 'font-mono font-bold text-base tracking-wide' : 'font-medium'}>{value}</span>
+      </div>
+      <button
+        type="button"
+        onClick={() => onCopy(field, value)}
+        className="shrink-0 p-1.5 rounded-lg hover:bg-white text-ink-500 hover:text-ink-900 transition-colors"
+        aria-label={`Copiar ${label}`}
+        title={`Copiar ${label}`}
+      >
+        {copiedField === field ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+      </button>
     </div>
   );
 }

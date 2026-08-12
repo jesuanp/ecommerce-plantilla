@@ -1,5 +1,5 @@
 {
-  "brand.name": "Lumen",
+  "brand.name": "Raybert Shop",
   "brand.tagline": "Productos seleccionados, entregados con cuidado.",
 
   "nav.home": "Inicio",
@@ -23,7 +23,7 @@
   "footer.support.returns": "Devoluciones",
   "footer.support.contact": "Contacto",
   "footer.payments": "Pagos seguros vía",
-  "footer.copyright": "© {year} Lumen Goods Inc.",
+  "footer.copyright": "© {year} Raybert Shop, S.A.",
 
   "cart.empty.title": "Tu carrito está vacío",
   "cart.empty.description": "Descubre nuestra colección y añade algo que te encante.",
@@ -106,10 +106,10 @@
   "categories.count": "{count} productos",
 
   "auth.login.title": "Bienvenido de nuevo",
-  "auth.login.subtitle": "Inicia sesión en tu cuenta de Lumen",
+  "auth.login.subtitle": "Inicia sesión en tu cuenta de Raybert Shop",
   "auth.login.cta": "Iniciar sesión",
   "auth.register.title": "Crear cuenta",
-  "auth.register.subtitle": "Únete a Lumen para una mejor experiencia de compra",
+  "auth.register.subtitle": "Únete a Raybert Shop para una mejor experiencia de compra",
   "auth.register.cta": "Crear cuenta",
   "auth.field.name": "Nombre completo",
   "auth.field.email": "Correo electrónico",
@@ -215,7 +215,7 @@
   "admin.viewStorefront": "Ver tienda",
   "admin.section.manage": "Gestionar",
   "admin.section.insights": "Análisis",
-  "admin.topbar.title": "Lumen Admin",
+  "admin.topbar.title": "Raybert Shop Admin",
   "admin.topbar.subtitle": "Panel admin",
   "admin.more": "Más",
 

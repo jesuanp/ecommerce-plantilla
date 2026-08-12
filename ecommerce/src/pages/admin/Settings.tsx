@@ -70,7 +70,9 @@ export default function Settings() {
         {tab === 'tax' && (
           <TaxTab settings={settings} onSave={save} saving={saving} />
         )}
-        {tab === 'payments' && <PaymentsTab />}
+        {tab === 'payments' && (
+          <PaymentsTab settings={settings} onSave={save} saving={saving} />
+        )}
       </div>
     </div>
   );
@@ -204,22 +206,90 @@ function TaxTab({ settings, onSave, saving }: any) {
   );
 }
 
-function PaymentsTab() {
+function PaymentsTab({ settings, onSave, saving }: any) {
+  const [bank, setBank] = useState({
+    bankName: settings.bankTransferDetails?.bankName || '',
+    accountHolder: settings.bankTransferDetails?.accountHolder || '',
+    accountNumber: settings.bankTransferDetails?.accountNumber || '',
+    documentId: settings.bankTransferDetails?.documentId || '',
+    instructions: settings.bankTransferDetails?.instructions || '',
+  });
+
+  const saveBank = () => onSave({ bankTransferDetails: bank });
+
   return (
-    <div className="space-y-4 max-w-2xl">
-      <p className="text-sm text-ink-500">Payment processor configuration is managed via environment variables.</p>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div className="p-4 bg-ink-100 rounded-xl">
-          <p className="font-medium">Stripe</p>
-          <p className="text-xs text-ink-500 mt-1">STRIPE_SECRET_KEY</p>
-          <p className="text-xs text-ink-400 mt-0.5">STRIPE_WEBHOOK_SECRET</p>
+    <div className="space-y-8 max-w-2xl">
+      <div>
+        <p className="text-sm text-ink-500">Payment processor configuration is managed via environment variables.</p>
+        <div className="grid sm:grid-cols-2 gap-4 mt-3">
+          <div className="p-4 bg-ink-100 rounded-xl">
+            <p className="font-medium">Stripe</p>
+            <p className="text-xs text-ink-500 mt-1">STRIPE_SECRET_KEY</p>
+            <p className="text-xs text-ink-400 mt-0.5">STRIPE_WEBHOOK_SECRET</p>
+          </div>
+          <div className="p-4 bg-ink-100 rounded-xl">
+            <p className="font-medium">Demo mode</p>
+            <p className="text-xs text-ink-500 mt-1">
+              When STRIPE_SECRET_KEY is empty, checkout uses a simulated flow that completes without real payment.
+            </p>
+          </div>
         </div>
-        <div className="p-4 bg-ink-100 rounded-xl">
-          <p className="font-medium">Demo mode</p>
+      </div>
+
+      <div className="pt-6 border-t border-ink-200 space-y-4">
+        <div>
+          <p className="font-medium">Pagomóvil</p>
           <p className="text-xs text-ink-500 mt-1">
-            When STRIPE_SECRET_KEY is empty, checkout uses a simulated flow that completes without real payment.
+            Se muestra al cliente cuando llega al paso de pago en el checkout, justo después de crear su orden como pendiente.
           </p>
         </div>
+
+        <Field label="Banco">
+          <input
+            value={bank.bankName}
+            onChange={e => setBank(b => ({ ...b, bankName: e.target.value }))}
+            className="input-base"
+            placeholder="Banco Industrial"
+          />
+        </Field>
+        <Field label="Titular">
+          <input
+            value={bank.accountHolder}
+            onChange={e => setBank(b => ({ ...b, accountHolder: e.target.value }))}
+            className="input-base"
+            placeholder="EG Connects, S.A."
+          />
+        </Field>
+        <Field label="Teléfono (Pagomóvil)">
+          <input
+            value={bank.accountNumber}
+            onChange={e => setBank(b => ({ ...b, accountNumber: e.target.value }))}
+            className="input-base"
+            placeholder="0414-1234567"
+          />
+        </Field>
+        <Field label="Cédula / RIF">
+          <input
+            value={bank.documentId}
+            onChange={e => setBank(b => ({ ...b, documentId: e.target.value }))}
+            className="input-base"
+            placeholder="V-12345678"
+          />
+        </Field>
+        <Field label="Instrucciones extra para el cliente">
+          <textarea
+            value={bank.instructions}
+            onChange={e => setBank(b => ({ ...b, instructions: e.target.value }))}
+            rows={3}
+            className="input-base"
+            placeholder="Envía también tu comprobante por WhatsApp para una confirmación más rápida."
+          />
+        </Field>
+
+        <button onClick={saveBank} disabled={saving} className="btn-primary flex items-center gap-2">
+          <Save className="w-4 h-4" />
+          {saving ? 'Guardando…' : 'Guardar datos de Pagomóvil'}
+        </button>
       </div>
     </div>
   );

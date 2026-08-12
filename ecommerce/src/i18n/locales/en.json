@@ -1,5 +1,5 @@
 {
-  "brand.name": "Lumen",
+  "brand.name": "Raybert Shop",
   "brand.tagline": "Curated goods, delivered with care.",
 
   "nav.home": "Home",
@@ -23,7 +23,7 @@
   "footer.support.returns": "Returns",
   "footer.support.contact": "Contact",
   "footer.payments": "Secure payments via",
-  "footer.copyright": "© {year} Lumen Goods Inc.",
+  "footer.copyright": "© {year} Raybert Shop, S.A.",
 
   "cart.empty.title": "Your cart is empty",
   "cart.empty.description": "Discover our collection and add something you'll love.",
@@ -106,10 +106,10 @@
   "categories.count": "{count} products",
 
   "auth.login.title": "Welcome back",
-  "auth.login.subtitle": "Sign in to your Lumen account",
+  "auth.login.subtitle": "Sign in to your Raybert Shop account",
   "auth.login.cta": "Sign in",
   "auth.register.title": "Create account",
-  "auth.register.subtitle": "Join Lumen for a better shopping experience",
+  "auth.register.subtitle": "Join Raybert Shop for a better shopping experience",
   "auth.register.cta": "Create account",
   "auth.field.name": "Full name",
   "auth.field.email": "Email",
@@ -215,7 +215,7 @@
   "admin.viewStorefront": "View storefront",
   "admin.section.manage": "Manage",
   "admin.section.insights": "Insights",
-  "admin.topbar.title": "Lumen Admin",
+  "admin.topbar.title": "Raybert Shop Admin",
   "admin.topbar.subtitle": "Admin panel",
   "admin.more": "More",
 

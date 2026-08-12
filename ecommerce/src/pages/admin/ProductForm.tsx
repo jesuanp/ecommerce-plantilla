@@ -242,7 +242,7 @@ export default function ProductForm() {
           labelKey="admin.productForm.langEs"
           fieldKey="brand"
           value={form.translations.es.brand}
-          placeholder="Lumen Audio"
+          placeholder="Raybert Audio"
           onChange={(v) => updateTranslation('es', 'brand', v)}
         />
         <BilingualField
@@ -250,7 +250,7 @@ export default function ProductForm() {
           labelKey="admin.productForm.langEn"
           fieldKey="brand"
           value={form.translations.en.brand}
-          placeholder="Lumen Audio"
+          placeholder="Raybert Audio"
           onChange={(v) => updateTranslation('en', 'brand', v)}
         />
 

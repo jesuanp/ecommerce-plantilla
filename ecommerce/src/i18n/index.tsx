@@ -4,7 +4,7 @@ import { I18nContext, type I18nContextValue, type Locale, detectLocale, isLocale
 import es from './locales/es.json';
 import en from './locales/en.json';
 
-const STORAGE_KEY = 'lumen-locale';
+const STORAGE_KEY = 'raybert-locale';
 
 const dictionaries: Record<Locale, Record<string, string>> = {
   es: es as Record<string, string>,

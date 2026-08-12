@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Upload, Loader2 } from 'lucide-react';
 import { categoriesApi, adminApi, type Category } from '../../lib/api';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { useToast } from '../../components/admin/Toast';
@@ -14,6 +14,8 @@ export default function Categories() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState('');
   const [form, setForm] = useState({
     slug: '',
     image: '',
@@ -37,6 +39,7 @@ export default function Categories() {
 
   const openCreate = () => {
     setEditing(null);
+    setImageError('');
     setForm({
       slug: '',
       image: '',
@@ -48,6 +51,7 @@ export default function Categories() {
 
   const openEdit = (cat: Category) => {
     setEditing(cat);
+    setImageError('');
     const tr = (cat.translations ?? {}) as any;
     setForm({
       slug: cat.slug,
@@ -76,6 +80,20 @@ export default function Categories() {
       ...f,
       translations: { ...f.translations, [lang]: { ...f.translations[lang], [field]: value } },
     }));
+  };
+
+  const handleImageUpload = async (file: File | undefined) => {
+    if (!file) return;
+    setImageError('');
+    setUploadingImage(true);
+    try {
+      const res = await adminApi.uploadCategoryImage(file);
+      setForm(f => ({ ...f, image: res.data.url }));
+    } catch (err: any) {
+      setImageError(err.response?.data?.error || 'Upload failed');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -199,13 +217,29 @@ export default function Categories() {
             </div>
             <div>
               <label className="text-sm font-medium block mb-1.5">{t('admin.categories.image')}</label>
-              <input
-                type="url"
-                value={form.image}
-                onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-                placeholder={t('admin.categories.imagePlaceholder')}
-                className="input-base"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={form.image}
+                  onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
+                  placeholder={t('admin.categories.imagePlaceholder')}
+                  className="input-base flex-1"
+                />
+                <label
+                  className={`btn-secondary shrink-0 cursor-pointer ${uploadingImage ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  Subir
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    disabled={uploadingImage}
+                    onChange={e => { handleImageUpload(e.target.files?.[0]); e.target.value = ''; }}
+                  />
+                </label>
+              </div>
+              {imageError && <p className="mt-1.5 text-sm text-red-600">{imageError}</p>}
               {form.image && (
                 <img
                   src={form.image}

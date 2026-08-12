@@ -36,9 +36,9 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-ink-900 text-white grid place-items-center font-bold group-hover:scale-105 transition-transform">
-              L
+              R
             </div>
-            <span className="text-lg font-bold tracking-tight">Lumen</span>
+            <span className="text-lg font-bold tracking-tight">Raybert Shop</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

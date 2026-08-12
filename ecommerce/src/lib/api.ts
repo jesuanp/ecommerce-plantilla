@@ -1,12 +1,34 @@
 import axios from 'axios';
 
+// VITE_API_URL lets you pin an explicit backend URL when the API isn't
+// reachable at "/api" relative to wherever the frontend is served from
+// (e.g. API on a completely separate domain). Without it, requests go to
+// a relative "/api" path — this is what makes the app work automatically
+// no matter how it's accessed (localhost, a LAN IP from a phone, or a
+// tunnel like ngrok): the Vite dev server proxies "/api" and "/uploads"
+// to the backend on localhost:4242 (see vite.config.ts), and in
+// production Nginx does the same under the same domain (see deploy docs).
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
 const api = axios.create({
-  baseURL: 'http://localhost:4242/api',
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Uploaded files (product images, payment proofs) are served from the API
+// origin under /uploads, not under /api. When API_BASE_URL is relative
+// ("/api", the default), apiOrigin resolves to "" and the path is left
+// relative — the browser resolves it against the current page origin,
+// which works because /uploads is proxied the same way /api is.
+export const apiOrigin = API_BASE_URL.replace(/\/api\/?$/, '');
+export function toAbsoluteUploadUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${apiOrigin}${path}`;
+}
 
 api.interceptors.response.use(
   (response) => response,
@@ -125,6 +147,8 @@ paymentMethod: string;
   trackingNumber?: string;
   notes?: string;
   statusHistory?: Array<{ status: string; at: string; by?: string }>;
+  paymentProofUrl?: string;
+  paymentProofUploadedAt?: string;
 }
 
 export interface Promotion {
@@ -169,6 +193,14 @@ export interface AuditLogEntry {
   createdAt: string;
 }
 
+export interface BankTransferDetails {
+  bankName?: string;
+  accountHolder?: string;
+  accountNumber?: string;
+  documentId?: string;
+  instructions?: string;
+}
+
 export interface StoreSettings {
   id: string;
   storeName: string;
@@ -176,6 +208,7 @@ export interface StoreSettings {
   logoUrl?: string;
   shippingZones?: Array<{ name: string; countries: string[]; rate: number }>;
   taxRates?: Record<string, number>;
+  bankTransferDetails?: BankTransferDetails | null;
 }
 
 export const categoriesApi = {
@@ -222,6 +255,23 @@ export const ordersApi = {
 paymentMethod: string;
     stripeSessionId?: string;
   }) => api.post<Order>('/orders', data),
+  uploadProof: (orderId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('proof', file);
+    return api.post<Order>(`/orders/${orderId}/payment-proof`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};
+
+export const publicSettingsApi = {
+  get: () =>
+    api.get<{
+      storeName: string | null;
+      contactEmail: string | null;
+      logoUrl: string | null;
+      bankTransferDetails: BankTransferDetails | null;
+    }>('/settings/public'),
 };
 
 export const checkoutApi = {
@@ -294,6 +344,22 @@ export const adminApi = {
   updateOrder: (id: string, data: { status?: string; trackingNumber?: string; notes?: string }) =>
     api.put<Order>(`/admin/orders/${id}`, data),
   exportOrdersCsv: () => api.get<string>('/admin/orders/export.csv', { responseType: 'text' }),
+
+  uploadProductImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post<{ url: string }>('/admin/uploads/product-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  uploadCategoryImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post<{ url: string }>('/admin/uploads/category-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 
   createProduct: (data: Partial<Product>) => api.post('/admin/products', data),
   updateProduct: (id: string, data: Partial<Product>) => api.put(`/admin/products/${id}`, data),

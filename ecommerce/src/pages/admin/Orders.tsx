@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { adminApi, type Order } from '../../lib/api';
+import { adminApi, toAbsoluteUploadUrl, type Order } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
 import { statusBadgeClass } from '../../lib/orderStatus';
 import DataTable, { type Column } from '../../components/admin/DataTable';
@@ -341,6 +341,49 @@ function OrderDetailDrawer({
               <Row label="Total" value={formatPrice(order.total)} bold />
             </div>
           </Section>
+
+          {order.paymentMethod === 'bank_transfer' && (
+            <Section icon={<FileText className="w-4 h-4" />} title="Comprobante Pagomóvil">
+              {order.paymentProofUrl ? (
+                <div className="space-y-2">
+                  <a
+                    href={toAbsoluteUploadUrl(order.paymentProofUrl)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {/\.pdf$/i.test(order.paymentProofUrl) ? (
+                      <div className="flex items-center gap-2 text-sm font-medium text-ink-900 hover:underline p-3 bg-ink-100 rounded-xl">
+                        <FileText className="w-4 h-4" />
+                        Ver comprobante (PDF)
+                      </div>
+                    ) : (
+                      <img
+                        src={toAbsoluteUploadUrl(order.paymentProofUrl)!}
+                        alt="Comprobante de pago"
+                        className="max-h-64 rounded-xl border border-ink-200 hover:opacity-90 transition-opacity"
+                      />
+                    )}
+                  </a>
+                  {order.paymentProofUploadedAt && (
+                    <p className="text-xs text-ink-500">
+                      Subido {new Date(order.paymentProofUploadedAt).toLocaleString()}
+                    </p>
+                  )}
+                  {order.status === 'pending' && (
+                    <button
+                      onClick={() => updateStatus('paid')}
+                      className="btn-primary text-sm w-full sm:w-auto"
+                    >
+                      Marcar como pagado
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-ink-500">Aún no se ha subido comprobante.</p>
+              )}
+            </Section>
+          )}
 
           <Section icon={<CreditCard className="w-4 h-4" />} title="Tracking">
             <div className="flex flex-col sm:flex-row gap-2">

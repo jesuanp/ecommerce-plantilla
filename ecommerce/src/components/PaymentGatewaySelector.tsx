@@ -4,6 +4,7 @@ import { usePaymentGateways } from '../payments';
 import { formatPrice } from '../lib/utils';
 import type {
   PaymentContext,
+  PaymentFormSubmitPayload,
   PaymentGateway,
   PaymentInitResult,
 } from '../payments/types';
@@ -34,6 +35,7 @@ export default function PaymentGatewaySelector({
   }, [available, selectedId]);
 
   const selected = available.find(g => g.id === selectedId) ?? null;
+  const hasForm = !!selected?.renderForm;
 
   const pay = async () => {
     if (!selected) return;
@@ -62,6 +64,26 @@ export default function PaymentGatewaySelector({
       setError(msg);
       setLoading(false);
     }
+  };
+
+  const handleFormSubmit = async (payload: PaymentFormSubmitPayload) => {
+    if (!selected) return;
+    setError('');
+    try {
+      const result = await selected.init(context);
+      const merged: PaymentInitResult = {
+        ...result,
+        paymentReference: payload.paymentReference ?? result.paymentReference,
+        paymentProofUrl: payload.paymentProofUrl ?? result.paymentProofUrl,
+      };
+      await onResult(merged, selected);
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Payment failed');
+    }
+  };
+
+  const handleFormCancel = () => {
+    setInlineNode(null);
   };
 
   if (available.length === 0) {
@@ -123,40 +145,53 @@ export default function PaymentGatewaySelector({
         </p>
       )}
 
-      {selected && selected.mode === 'redirect' && (
+      {selected && selected.mode === 'redirect' && !hasForm && (
         <p className="text-xs text-ink-500 text-center">
           You'll be redirected to complete payment securely.
         </p>
       )}
 
-      {inlineNode && (
+      {hasForm && selected && (
+        <div className="pt-2 border-t border-ink-200">
+          {selected.renderForm!({
+            context,
+            onSubmit: handleFormSubmit,
+            onCancel: handleFormCancel,
+          })}
+          {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
+        </div>
+      )}
+
+      {!hasForm && inlineNode && (
         <div className="pt-2 border-t border-ink-200">{inlineNode}</div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {!hasForm && error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="flex gap-3">
-        {onBack && (
+      {!hasForm && (
+        <div className="flex gap-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="btn-secondary"
+              disabled={loading}
+            >
+              Back
+            </button>
+          )}
           <button
             type="button"
-            onClick={onBack}
-            className="btn-secondary"
-            disabled={loading}
+            onClick={pay}
+            className="btn-primary flex-1"
+            disabled={loading || !selected}
           >
-            Back
+            {loading ? 'Processing…' : selected?.mode === 'demo'
+              ? `Simulate payment ${formatPrice(context.amount, context.currency)}`
+              : `Pay ${formatPrice(context.amount, context.currency)}`}
           </button>
-        )}
-        <button
-          type="button"
-          onClick={pay}
-          className="btn-primary flex-1"
-          disabled={loading || !selected}
-        >
-          {loading ? 'Processing…' : selected?.mode === 'demo'
-            ? `Simulate payment ${formatPrice(context.amount, context.currency)}`
-            : `Pay ${formatPrice(context.amount, context.currency)}`}
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

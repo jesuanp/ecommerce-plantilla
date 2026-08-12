@@ -8,9 +8,9 @@ export default function Footer() {
           <div className="col-span-2">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-ink-900 text-white grid place-items-center font-bold">
-                L
+                R
               </div>
-              <span className="text-lg font-bold tracking-tight">Lumen</span>
+              <span className="text-lg font-bold tracking-tight">Raybert Shop</span>
             </div>
             <p className="mt-3 text-sm text-ink-500 max-w-sm">
               Curated goods, delivered with care. We partner with makers and brands who care about the details.
@@ -37,12 +37,10 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-ink-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-ink-400">© {new Date().getFullYear()} Lumen Goods Inc.</p>
+          <p className="text-xs text-ink-400">© {new Date().getFullYear()} Raybert Shop, S.A.</p>
           <div className="flex items-center gap-4 text-xs text-ink-400">
-            <span>Secure payments via</span>
-            <span className="font-semibold text-ink-700">Stripe</span>
-            <span>·</span>
-            <span className="font-semibold text-ink-700">PayPal</span>
+            <span>Pagos seguros vía</span>
+            <span className="font-semibold text-ink-700">Pagomóvil</span>
           </div>
         </div>
       </div>

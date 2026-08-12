@@ -1,9 +1,9 @@
 import { registerGateway } from './registry';
-import { demoGateway } from './gateways/demo';
-import { stripeGateway } from './gateways/stripe';
+import { bankTransferGateway } from './gateways/bank-transfer';
 
-registerGateway(demoGateway);
-registerGateway(stripeGateway);
+// Only Pagomóvil is active for now. To bring back Stripe/demo later,
+// import them again and call registerGateway() for each.
+registerGateway(bankTransferGateway);
 
 export * from './types';
 export * from './registry';

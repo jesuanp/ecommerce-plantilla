@@ -55,9 +55,9 @@ export default function AdminSidebar() {
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:sticky lg:top-0 lg:h-screen bg-ink-900 text-white shrink-0">
       <div className="h-16 px-6 flex items-center gap-2 border-b border-white/10 shrink-0">
         <div className="w-8 h-8 rounded-lg bg-white text-ink-900 grid place-items-center font-bold">
-          L
+          R
         </div>
-        <span className="font-bold tracking-tight">Lumen Admin</span>
+        <span className="font-bold tracking-tight">Raybert Shop Admin</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 min-h-0">

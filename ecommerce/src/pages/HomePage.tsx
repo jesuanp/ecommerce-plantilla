@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, Zap, Shield, Truck } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { productsApi, categoriesApi, type Product, type Category } from '../lib/api';
 import { formatPrice } from '../lib/utils';
@@ -266,40 +266,40 @@ function FeaturedSection({ products }: { products: Product[] }) {
   );
 }
 
-function ValuePropsSection() {
-  return (
-    <section className="bg-ink-100 py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="flex items-start gap-4 p-6 bg-white rounded-2xl">
-            <div className="p-3 bg-ink-100 rounded-xl">
-              <Truck className="w-6 h-6 text-ink-900" />
-            </div>
-            <div>
-              <h3 className="font-bold mb-1">Free Shipping</h3>
-              <p className="text-sm text-ink-500">On every order over $100, anywhere in the country.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4 p-6 bg-white rounded-2xl">
-            <div className="p-3 bg-ink-100 rounded-xl">
-              <Shield className="w-6 h-6 text-ink-900" />
-            </div>
-            <div>
-              <h3 className="font-bold mb-1">Secure Payments</h3>
-              <p className="text-sm text-ink-500">Industry-standard encryption, powered by Stripe.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4 p-6 bg-white rounded-2xl">
-            <div className="p-3 bg-ink-100 rounded-xl">
-              <Zap className="w-6 h-6 text-ink-900" />
-            </div>
-            <div>
-              <h3 className="font-bold mb-1">30-day Returns</h3>
-              <p className="text-sm text-ink-500">Not in love? Send it back, no questions asked.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+// function ValuePropsSection() {
+//   return (
+//     <section className="bg-ink-100 py-16">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="grid md:grid-cols-3 gap-6">
+//           <div className="flex items-start gap-4 p-6 bg-white rounded-2xl">
+//             <div className="p-3 bg-ink-100 rounded-xl">
+//               <Truck className="w-6 h-6 text-ink-900" />
+//             </div>
+//             <div>
+//               <h3 className="font-bold mb-1">Free Shipping</h3>
+//               <p className="text-sm text-ink-500">On every order over $100, anywhere in the country.</p>
+//             </div>
+//           </div>
+//           <div className="flex items-start gap-4 p-6 bg-white rounded-2xl">
+//             <div className="p-3 bg-ink-100 rounded-xl">
+//               <Shield className="w-6 h-6 text-ink-900" />
+//             </div>
+//             <div>
+//               <h3 className="font-bold mb-1">Secure Payments</h3>
+//               <p className="text-sm text-ink-500">Industry-standard encryption, powered by Stripe.</p>
+//             </div>
+//           </div>
+//           <div className="flex items-start gap-4 p-6 bg-white rounded-2xl">
+//             <div className="p-3 bg-ink-100 rounded-xl">
+//               <Zap className="w-6 h-6 text-ink-900" />
+//             </div>
+//             <div>
+//               <h3 className="font-bold mb-1">30-day Returns</h3>
+//               <p className="text-sm text-ink-500">Not in love? Send it back, no questions asked.</p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }

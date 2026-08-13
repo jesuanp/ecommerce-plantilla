@@ -62,7 +62,7 @@ async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
-function BankTransferForm({ onSubmit, onCancel }: PaymentFormProps) {
+function BankTransferForm({ onCancel }: PaymentFormProps) {
   const toast = useToast();
   const [reference, setReference] = useState('');
   const [proofFile, setProofFile] = useState<File | null>(null);

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Building2, Copy, Upload, Check, X } from 'lucide-react';
-import { uploadApi } from '../../lib/api';
+// import { uploadApi } from '../../lib/api';
 import { useToast } from '../../components/admin/Toast';
 import type {
   PaymentContext,
@@ -110,11 +110,11 @@ function BankTransferForm({ onSubmit, onCancel }: PaymentFormProps) {
     }
     setSubmitting(true);
     try {
-      const res = await uploadApi.uploadFile(proofFile, 'payments');
-      await onSubmit({
-        paymentReference: reference.trim(),
-        paymentProofUrl: res.data.url,
-      });
+      // const res = await uploadApi.uploadFile(proofFile, 'payments');
+      // await onSubmit({
+      //   paymentReference: reference.trim(),
+      //   paymentProofUrl: res.data.url,
+      // });
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || 'No se pudo subir el comprobante.');
       setSubmitting(false);

@@ -10,7 +10,7 @@ interface OrderAttributes {
   shipping: number;
   tax: number;
   total: number;
-  paymentMethod: 'stripe' | 'paypal';
+  paymentMethod: 'stripe' | 'paypal' | 'bank_transfer';
   stripeSessionId?: string;
   customerEmail: string;
   shippingAddress: {
@@ -23,6 +23,8 @@ interface OrderAttributes {
   trackingNumber?: string;
   notes?: string;
   statusHistory?: Array<{ status: string; at: string; by?: string }>;
+  paymentProofUrl?: string;
+  paymentProofUploadedAt?: Date;
 }
 
 class Order extends Model<OrderAttributes> implements OrderAttributes {
@@ -33,13 +35,15 @@ class Order extends Model<OrderAttributes> implements OrderAttributes {
   declare shipping: number;
   declare tax: number;
   declare total: number;
-  declare paymentMethod: 'stripe' | 'paypal';
+  declare paymentMethod: 'stripe' | 'paypal' | 'bank_transfer';
   declare stripeSessionId?: string;
   declare customerEmail: string;
   declare shippingAddress: any;
   declare trackingNumber?: string;
   declare notes?: string;
   declare statusHistory?: Array<{ status: string; at: string; by?: string }>;
+  declare paymentProofUrl?: string;
+  declare paymentProofUploadedAt?: Date;
 }
 
 Order.init(
@@ -77,7 +81,7 @@ Order.init(
       allowNull: false,
     },
     paymentMethod: {
-      type: DataTypes.ENUM('stripe', 'paypal'),
+      type: DataTypes.ENUM('stripe', 'paypal', 'bank_transfer'),
       defaultValue: 'stripe',
     },
     stripeSessionId: {
@@ -100,6 +104,12 @@ Order.init(
     statusHistory: {
       type: DataTypes.JSONB,
       defaultValue: [],
+    },
+    paymentProofUrl: {
+      type: DataTypes.STRING,
+    },
+    paymentProofUploadedAt: {
+      type: DataTypes.DATE,
     },
   },
   {

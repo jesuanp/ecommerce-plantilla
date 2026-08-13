@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const dbName = process.env.DB_NAME || 'lumen_db';
+const dbName = process.env.DB_NAME || 'raybert_db';
 const dbUser = process.env.DB_USER || 'postgres';
 const dbPass = process.env.DB_PASS || 'postgres';
 const dbHost = process.env.DB_HOST || 'localhost';

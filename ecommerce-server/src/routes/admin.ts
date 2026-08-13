@@ -5,8 +5,46 @@ import { authenticateToken } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/admin.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { logAudit } from '../lib/audit.js';
+import { makeUploader, PRODUCTS_SUBDIR, CATEGORIES_SUBDIR, publicUrlFor } from '../lib/uploads.js';
 
 const router = Router();
+
+const productImageUploader = makeUploader(PRODUCTS_SUBDIR, [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
+
+const categoryImageUploader = makeUploader(CATEGORIES_SUBDIR, [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
+
+// The i18n editing UI (ProductForm, Categories admin page) only fills in
+// `translations.es` / `translations.en` — it never sends a top-level
+// `name`/`description`/etc. But those top-level columns are what's used
+// for sorting, search, and the `allowNull: false` constraint on `name`.
+// This fills them in from the translations (Spanish preferred, since it's
+// this store's primary language) whenever the caller didn't set them
+// explicitly, so creating/editing through the translated form doesn't hit
+// a "cannot be null" validation error.
+function deriveFromTranslations(
+  payload: Record<string, any>,
+  translations: { es?: Record<string, any>; en?: Record<string, any> } | undefined,
+  fields: string[]
+): void {
+  if (!translations) return;
+  for (const field of fields) {
+    if (payload[field] !== undefined && payload[field] !== null && payload[field] !== '') continue;
+    const value = translations.es?.[field] || translations.en?.[field];
+    if (value !== undefined && value !== null && value !== '') {
+      payload[field] = value;
+    }
+  }
+}
 
 router.use(authenticateToken, requireAdmin);
 
@@ -207,11 +245,52 @@ router.put('/orders/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Uploads a single product image to local disk (VPS-persisted directory,
+// see UPLOAD_DIR) and returns its public URL to be added to Product.images.
+router.post(
+  '/uploads/product-image',
+  productImageUploader.single('image'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: 'An image file is required' });
+        return;
+      }
+      const url = publicUrlFor(PRODUCTS_SUBDIR, req.file.filename);
+      await logAudit(req, 'upload.product-image', 'upload', undefined, { filename: req.file.filename });
+      res.status(201).json({ url });
+    } catch (error) {
+      console.error('Product image upload error:', error);
+      res.status(500).json({ error: 'Failed to upload image' });
+    }
+  }
+);
+
+router.post(
+  '/uploads/category-image',
+  categoryImageUploader.single('image'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: 'An image file is required' });
+        return;
+      }
+      const url = publicUrlFor(CATEGORIES_SUBDIR, req.file.filename);
+      await logAudit(req, 'upload.category-image', 'upload', undefined, { filename: req.file.filename });
+      res.status(201).json({ url });
+    } catch (error) {
+      console.error('Category image upload error:', error);
+      res.status(500).json({ error: 'Failed to upload image' });
+    }
+  }
+);
+
 router.post('/products', async (req: AuthRequest, res: Response) => {
   try {
     const { translations, ...rest } = req.body;
     const payload: any = { ...rest };
     if (translations) payload.translations = translations;
+    deriveFromTranslations(payload, translations, ['name', 'description', 'longDescription', 'brand']);
     const product = await Product.create(payload);
 
     const category = await Category.findByPk(product.categoryId);
@@ -244,6 +323,7 @@ router.put('/products/:id', async (req: AuthRequest, res: Response) => {
 
     const oldCategoryId = product.categoryId;
     const { translations, ...rest } = req.body;
+    if (translations) deriveFromTranslations(rest, translations, ['name', 'description', 'longDescription', 'brand']);
     Object.assign(product, rest);
     if (translations) product.translations = translations;
     await product.save();
@@ -320,7 +400,7 @@ router.post('/products/bulk', async (req: AuthRequest, res: Response) => {
       res.status(400).json({ error: 'Unknown action' });
       return;
     }
-    await logAudit(req, `product.bulk.${action}`, 'product', null, { count: affected, ids });
+    await logAudit(req, `product.bulk.${action}`, 'product', undefined, { count: affected, ids });
     res.json({ affected });
   } catch (error) {
     console.error('Admin bulk product error:', error);
@@ -333,6 +413,7 @@ router.post('/categories', async (req: AuthRequest, res: Response) => {
     const { translations, ...rest } = req.body;
     const payload: any = { ...rest };
     if (translations) payload.translations = translations;
+    deriveFromTranslations(payload, translations, ['name', 'description']);
     const category = await Category.create(payload);
     await logAudit(req, 'category.create', 'category', category.id, { name: category.name });
     res.status(201).json(category);
@@ -355,6 +436,7 @@ router.put('/categories/:id', async (req: AuthRequest, res: Response) => {
       return;
     }
     const { translations, ...rest } = req.body;
+    if (translations) deriveFromTranslations(rest, translations, ['name', 'description']);
     Object.assign(category, rest);
     if (translations) category.translations = translations;
     await category.save();
@@ -447,7 +529,7 @@ router.get('/top-products', async (_req: Request, res: Response) => {
         'productId',
         'name',
         [fn('SUM', col('OrderItem.quantity')), 'sold']],
-      where: { productId: { [Op.ne]: null } },
+      where: { productId: { [Op.ne]: null } } as any,
       group: ['productId', 'name'],
       order: [[literal('sold'), 'DESC']],
       limit: 5,

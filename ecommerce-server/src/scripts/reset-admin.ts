@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@lumen.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@raybertshop.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 async function main() {

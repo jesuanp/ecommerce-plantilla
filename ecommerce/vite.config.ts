@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const API_TARGET = 'https://914c-199-167-151-202.ngrok-free.app';
+const API_TARGET = 'https://f955-199-167-151-202.ngrok-free.app';
 
 export default defineConfig({
   plugins: [react()],

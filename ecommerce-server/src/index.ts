@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 4242;
 
 // CORS_ORIGINS accepts a comma-separated list for production, e.g.:
 // CORS_ORIGINS=https://tienda.raybert.com,https://admin.raybert.com
-const explicitOrigins = (process.env.CORS_ORIGINS || 'http://192.168.1.28:5173/')
+const explicitOrigins = 'https://calm-alfajores-4ce4fa.netlify.app/'
   .split(',')
   .map(o => o.trim())
   .filter(Boolean);

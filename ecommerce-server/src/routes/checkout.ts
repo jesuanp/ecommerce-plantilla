@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
-import { optionalAuth, AuthRequest } from '../middleware/auth.js';
+import { optionalAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { fn, col, literal, Op } from 'sequelize';
-import { Order, OrderItem, Product, Category } from '../models/index.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { requireAdmin } from '../middleware/admin.js';
+import { Order, OrderItem, Product, Category } from '../models/index';
+import { authenticateToken } from '../middleware/auth';
+import { requireAdmin } from '../middleware/admin';
 
 const router = Router();
 

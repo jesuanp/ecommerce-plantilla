@@ -1,5 +1,5 @@
-import { sequelize } from '../config/database.js';
-import { Category, Product } from '../models/index.js';
+import { sequelize } from '../config/database';
+import { Category, Product } from '../models/index';
 
 async function migrate() {
   console.log('🌐 Populating translations.en for existing products and categories…');

@@ -1,5 +1,5 @@
-import { sequelize, connectDB } from '../config/database.js';
-import { seedDatabase } from '../seeders/seed.js';
+import { sequelize, connectDB } from '../config/database';
+import { seedDatabase } from '../seeders/seed';
 import dotenv from 'dotenv';
 
 dotenv.config();

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { User } from '../models/index.js';
-import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth.js';
+import { User } from '../models/index';
+import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 

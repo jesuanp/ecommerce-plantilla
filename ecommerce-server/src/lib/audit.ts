@@ -1,5 +1,5 @@
-import { AuditLog } from '../models/index.js';
-import type { AuthRequest } from '../middleware/auth.js';
+import { AuditLog } from '../models/index';
+import type { AuthRequest } from '../middleware/auth';
 
 export async function logAudit(
   req: AuthRequest | null,

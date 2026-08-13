@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
-import { Order, OrderItem, Product } from '../models/index.js';
-import { authenticateToken, AuthRequest } from '../middleware/auth.js';
-import { makeUploader, PROOFS_SUBDIR, publicUrlFor } from '../lib/uploads.js';
+import { Order, OrderItem, Product } from '../models/index';
+import { authenticateToken, AuthRequest } from '../middleware/auth';
+import { makeUploader, PROOFS_SUBDIR, publicUrlFor } from '../lib/uploads';
 
 const router = Router();
 

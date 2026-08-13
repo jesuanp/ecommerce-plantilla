@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
-import { sequelize } from '../config/database.js';
-import Product from './Product.js';
-import User from './User.js';
+import { sequelize } from '../config/database';
+import Product from './Product';
+import User from './User';
 
 export type ReviewStatus = 'pending' | 'approved' | 'rejected';
 

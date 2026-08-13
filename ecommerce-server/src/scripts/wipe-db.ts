@@ -1,5 +1,5 @@
-import { sequelize, connectDB } from '../config/database.js';
-import { User } from '../models/index.js';
+import { sequelize, connectDB } from '../config/database';
+import { User } from '../models/index';
 import dotenv from 'dotenv';
 
 dotenv.config();

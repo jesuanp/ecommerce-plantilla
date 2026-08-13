@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { fn, col, literal, Op } from 'sequelize';
-import { User, Product, Category, Order, OrderItem, AuditLog } from '../models/index.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { requireAdmin } from '../middleware/admin.js';
-import { AuthRequest } from '../middleware/auth.js';
-import { logAudit } from '../lib/audit.js';
-import { makeUploader, PRODUCTS_SUBDIR, CATEGORIES_SUBDIR, publicUrlFor } from '../lib/uploads.js';
+import { User, Product, Category, Order, OrderItem, AuditLog } from '../models/index';
+import { authenticateToken } from '../middleware/auth';
+import { requireAdmin } from '../middleware/admin';
+import { AuthRequest } from '../middleware/auth';
+import { logAudit } from '../lib/audit';
+import { makeUploader, PRODUCTS_SUBDIR, CATEGORIES_SUBDIR, publicUrlFor } from '../lib/uploads';
 
 const router = Router();
 

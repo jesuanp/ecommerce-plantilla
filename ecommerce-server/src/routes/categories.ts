@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Category, Product } from '../models/index.js';
+import { Category, Product } from '../models/index';
 
 const router = Router();
 

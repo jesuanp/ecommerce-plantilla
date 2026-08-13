@@ -2,21 +2,21 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { connectDB, sequelize } from './config/database.js';
-import { Category, Product, User, Order, OrderItem, Promotion, Review, AuditLog, StoreSettings } from './models/index.js';
-import { seedDatabase } from './seeders/seed.js';
-import { ensureUploadDirs, UPLOAD_DIR } from './lib/uploads.js';
-import authRoutes from './routes/auth.js';
-import categoryRoutes from './routes/categories.js';
-import productRoutes from './routes/products.js';
-import orderRoutes from './routes/orders.js';
-import checkoutRoutes from './routes/checkout.js';
-import adminRoutes from './routes/admin.js';
-import analyticsRoutes from './routes/analytics.js';
-import promotionsRoutes from './routes/promotions.js';
-import reviewsRoutes from './routes/reviews.js';
-import settingsRoutes from './routes/settings.js';
-import publicSettingsRoutes from './routes/publicSettings.js';
+import { connectDB, sequelize } from './config/database';
+import { Category, Product, User, Order, OrderItem, Promotion, Review, AuditLog, StoreSettings } from './models/index';
+import { seedDatabase } from './seeders/seed';
+import { ensureUploadDirs, UPLOAD_DIR } from './lib/uploads';
+import authRoutes from './routes/auth';
+import categoryRoutes from './routes/categories';
+import productRoutes from './routes/products';
+import orderRoutes from './routes/orders';
+import checkoutRoutes from './routes/checkout';
+import adminRoutes from './routes/admin';
+import analyticsRoutes from './routes/analytics';
+import promotionsRoutes from './routes/promotions';
+import reviewsRoutes from './routes/reviews';
+import settingsRoutes from './routes/settings';
+import publicSettingsRoutes from './routes/publicSettings';
 
 dotenv.config();
 ensureUploadDirs();
@@ -78,7 +78,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 
 app.get('/api/db-status', async (_req: Request, res: Response) => {
   try {
-    const { sequelize } = await import('./config/database.js');
+    const { sequelize } = await import('./config/database');
     await sequelize.authenticate();
     res.json({ ok: true, database: 'connected' });
   } catch (error) {

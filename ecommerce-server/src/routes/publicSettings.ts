@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { StoreSettings } from '../models/index.js';
+import { StoreSettings } from '../models/index';
 
 const router = Router();
 

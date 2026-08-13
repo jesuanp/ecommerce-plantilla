@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
-import { sequelize } from '../config/database.js';
-import Category from './Category.js';
+import { sequelize } from '../config/database';
+import Category from './Category';
 
 export interface ProductTranslation {
   name: string;

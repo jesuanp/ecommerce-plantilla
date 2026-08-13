@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { Review, Product, User } from '../models/index.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { requireAdmin } from '../middleware/admin.js';
-import { logAudit } from '../lib/audit.js';
+import { Review, Product, User } from '../models/index';
+import { authenticateToken } from '../middleware/auth';
+import { requireAdmin } from '../middleware/admin';
+import { logAudit } from '../lib/audit';
 import { Op } from 'sequelize';
-import type { AuthRequest } from '../middleware/auth.js';
+import type { AuthRequest } from '../middleware/auth';
 
 const router = Router();
 

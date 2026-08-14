@@ -1,8 +1,23 @@
 import { Router, Request, Response } from 'express';
-import { User } from '../models/index';
-import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth';
+import { User } from '../models/index.js';
+import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
+
+// CROSS_SITE_COOKIES=true is for setups where the frontend and backend are
+// on genuinely different sites (e.g. frontend on Netlify, backend on a VPS
+// under its own domain) — browsers only allow that with sameSite:'none',
+// which in turn REQUIRES secure:true (HTTPS). Most single-domain deployments
+// (frontend + backend behind the same Nginx, per the deploy guide) don't
+// need this and should leave it unset, using NODE_ENV as before.
+const CROSS_SITE = process.env.CROSS_SITE_COOKIES === 'true';
+
+const cookieOptions = () => ({
+  httpOnly: true,
+  secure: CROSS_SITE || process.env.NODE_ENV === 'production',
+  sameSite: (CROSS_SITE ? 'none' : 'lax') as 'none' | 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -23,12 +38,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
     const token = generateToken(user);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', token, cookieOptions());
 
     res.status(201).json({
       user: {
@@ -67,12 +77,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const token = generateToken(user);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', token, cookieOptions());
 
     res.json({
       user: {
@@ -93,7 +98,8 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 router.post('/logout', (_req: Request, res: Response) => {
-  res.clearCookie('token');
+  const { maxAge, ...clearOptions } = cookieOptions();
+  res.clearCookie('token', clearOptions);
   res.json({ message: 'Logged out successfully' });
 });
 

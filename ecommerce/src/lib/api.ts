@@ -8,7 +8,7 @@ import axios from 'axios';
 // tunnel like ngrok): the Vite dev server proxies "/api" and "/uploads"
 // to the backend on localhost:4242 (see vite.config.ts), and in
 // production Nginx does the same under the same domain (see deploy docs).
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://146.190.75.136:4242/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://146-190-75-136.nip.io/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
